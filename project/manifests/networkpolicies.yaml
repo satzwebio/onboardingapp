@@ -1,0 +1,48 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: team-alpha-webapp-policy
+  namespace: team-alpha-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: team-alpha-webapp
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: team-alpha-db
+    ports:
+    - protocol: TCP
+      port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: team-alpha-db-policy
+  namespace: team-alpha-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: team-alpha-db
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: team-alpha-webapp
+    ports:
+    - protocol: TCP
+      port: 5432

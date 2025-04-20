@@ -1,0 +1,42 @@
+apiVersion: onboarding.k8s.io/v1alpha1
+kind: TeamOnboardingApp
+metadata:
+  name: team-alpha-onboarding
+spec:
+  teamName: team-alpha
+  environment: development
+  namespace: team-alpha-dev
+  webApp:
+    image: registry.example.com/onboarding-webapp:latest
+    replicas: 2
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "200m"
+        memory: "256Mi"
+  database:
+    image: postgres:13
+    replicas: 1
+    storage:
+      storageClassName: standard
+      size: 10Gi
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "256Mi"
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+  configMaps:
+    - name: team-alpha-config
+      data:
+        APP_CONFIG: |
+          environment=development
+          log_level=debug
+  secrets:
+    - name: team-alpha-db-credentials
+      stringData:
+        username: admin
+        password: changeme

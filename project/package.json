@@ -1,0 +1,10 @@
+{
+  "name": "team-onboarding-operator",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "go build -o bin/operator operator/controllers/teamonboardingapp_controller.go",
+    "test": "go test ./..."
+  }
+}

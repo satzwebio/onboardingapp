@@ -1,0 +1,170 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: teamonboardingapps.onboarding.k8s.io
+spec:
+  group: onboarding.k8s.io
+  names:
+    kind: TeamOnboardingApp
+    listKind: TeamOnboardingAppList
+    plural: teamonboardingapps
+    singular: teamonboardingapp
+    shortNames:
+      - toa
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - teamName
+                - environment
+                - webApp
+                - database
+              properties:
+                teamName:
+                  type: string
+                  description: Name of the team
+                environment:
+                  type: string
+                  description: Environment (dev, staging, prod)
+                namespace:
+                  type: string
+                  description: Target namespace for resources
+                webApp:
+                  type: object
+                  required:
+                    - image
+                    - replicas
+                  properties:
+                    image:
+                      type: string
+                    replicas:
+                      type: integer
+                      minimum: 1
+                    resources:
+                      type: object
+                      properties:
+                        requests:
+                          type: object
+                          properties:
+                            cpu:
+                              type: string
+                            memory:
+                              type: string
+                        limits:
+                          type: object
+                          properties:
+                            cpu:
+                              type: string
+                            memory:
+                              type: string
+                database:
+                  type: object
+                  required:
+                    - image
+                    - storage
+                  properties:
+                    image:
+                      type: string
+                    replicas:
+                      type: integer
+                      minimum: 1
+                    storage:
+                      type: object
+                      required:
+                        - size
+                      properties:
+                        storageClassName:
+                          type: string
+                        size:
+                          type: string
+                    resources:
+                      type: object
+                      properties:
+                        requests:
+                          type: object
+                          properties:
+                            cpu:
+                              type: string
+                            memory:
+                              type: string
+                        limits:
+                          type: object
+                          properties:
+                            cpu:
+                              type: string
+                            memory:
+                              type: string
+                configMaps:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - name
+                    properties:
+                      name:
+                        type: string
+                      data:
+                        type: object
+                        additionalProperties:
+                          type: string
+                secrets:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - name
+                    properties:
+                      name:
+                        type: string
+                      stringData:
+                        type: object
+                        additionalProperties:
+                          type: string
+            status:
+              type: object
+              properties:
+                phase:
+                  type: string
+                  enum: ["Pending", "Creating", "Ready", "Failed"]
+                conditions:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - type
+                      - status
+                    properties:
+                      type:
+                        type: string
+                      status:
+                        type: string
+                      lastTransitionTime:
+                        type: string
+                        format: date-time
+                      reason:
+                        type: string
+                      message:
+                        type: string
+      additionalPrinterColumns:
+        - name: Team
+          type: string
+          jsonPath: .spec.teamName
+        - name: Environment
+          type: string
+          jsonPath: .spec.environment
+        - name: Status
+          type: string
+          jsonPath: .status.phase
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp
+      subresources:
+        status: {}
